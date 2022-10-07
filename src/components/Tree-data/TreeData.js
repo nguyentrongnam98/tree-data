@@ -6,7 +6,7 @@ export default function TreeData(props) {
   const { treeData: data, isSearch, isExpandOrCollapse } = props;
   const [treeData, setTreeData] = useState(data);
   const [searchQuery, setSearchString] = useState("");
-  const [searchFocusIndex, setSearchFocusIndex] = useState(0);
+  const [searchFocusIndex, setSearchFocusIndex] = useState(2);
   const [currentNode,setCurrentNode] = useState({})
   const getNodeKey = ({ treeIndex }) => treeIndex;
   const handleTreeData = (data) => {
@@ -45,10 +45,9 @@ export default function TreeData(props) {
     setSearchString(e.target.value)
   };
   const updateTreeData = (treeData) => {
-    setTreeData(treeData)
+    setTreeData([...treeData])
   }
   const customSearchMethod = ({ node, searchQuery }) => {
-    console.log('searchQuery',searchQuery);
    return searchQuery &&
     node.title.toLowerCase().indexOf(searchQuery.toLowerCase()) > -1;
   }
@@ -77,10 +76,13 @@ export default function TreeData(props) {
       {isSearch && renderInputSearch()}
       <SortableTree
         treeData={treeData}
-        onChange={treeData  => handleTreeData(treeData)}
+        onChange={updateTreeData}
         searchFocusOffset={searchFocusIndex}
         searchQuery={searchQuery}
         searchMethod={customSearchMethod}
+        isVirtualized={true}
+        searchFinishCallback={(matches) =>{console.log(matches); setSearchFocusIndex(matches.length > 0 ? searchFocusIndex % matches.length : 0)}}
+        onlyExpandSearchedNodes={true}
         generateNodeProps={({ node, path }) => ({
           title: (
             <form onClick={(e) => { e.preventDefault(); e.stopPropagation(); selectThis(node, path); }}>
